@@ -89,7 +89,7 @@ def read_history(file,filter_file):
                                 statistic[id]['part'][part]["search"].append(a['q'])
                                 continue
                             else:
-                                statistic[id]['part'][part]["tutorial"].append((o.netloc,o.path))
+                                statistic[id]['part'][part]["tutorial"].append( { "url": o.netloc, "path": o.path})
                         
                         candidates = []
                         statistic[id]['part'][part]["stop"] = visitTime.strftime('%d. %B %H:%M')

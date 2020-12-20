@@ -42,7 +42,33 @@
         <h4>Browser-History-Difficulty-Measure</h4>
       </div>
     </div>
-    <canvas id="myChart" width="400" height="200"></canvas>
+
+    <div class="row">
+      <div class="column" style="margin-top: 25px">
+        <h5>Search Queries and Tutorial Pages visited</h5>
+        <canvas id="chartA" width="400" height="200"></canvas>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="column" style="margin-top: 25px">
+        <h5>Seconds for solving puzzles</h5>
+        <canvas id="chartB" width="400" height="200"></canvas>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="column" style="margin-top: 25px">
+        <h5>Used Pages</h5>
+        <canvas id="chartC" width="400" height="200"></canvas>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="column" style="margin-top: 25px">
+        <h5>Next</h5>
+      </div>
+    </div>
 
   </div>
 
@@ -62,23 +88,64 @@
 $( document ).ready(function() {
    
 
-    var speedCanvas = document.getElementById('myChart').getContext('2d');
-
     var labels = []
-    var values1 = []
-    var values2 = []
+    var valuesA1 = []
+    var valuesA2 = []
 
+    var valuesB1 = []
+    var valuesB2 = []
+
+    var tutorials = []
     for (const key of Object.keys(generate)) {
 
       var obj = generate[key];
       console.log(key,obj);
       labels.push(key);
       
-      values1.push(obj.part[0].search.length + obj.part[1].search.length)
-      values2.push(obj.part[0].tutorial.length + obj.part[1].tutorial.length)
+      valuesA1.push(obj.part[0].search.length + obj.part[1].search.length)
+      valuesA2.push(obj.part[0].tutorial.length + obj.part[1].tutorial.length)
+
+      valuesB1.push(obj.part[0].seconds)
+      valuesB2.push(obj.part[1].seconds)
+
+      for (var t of obj.part[0].tutorial) {
+        tutorials.push(t.url)
+      }
+      for (var t of obj.part[1].tutorial) {
+        tutorials.push(t.url)
+      }
     }
 
-    var data = {
+    var labelsC = []
+    var valuesC = []
+    var colorsC = []
+
+    counts = {}
+    for (var i = 0; i < tutorials.length; i++) {
+      var num = tutorials[i];
+      counts[num] = counts[num] ? counts[num] + 1 : 1;
+    }
+
+    //Math.seedrandom("hello world");
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+          color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+    keys = Object.keys(counts);
+    for(const key of keys)
+    {
+      labelsC.push(key);
+      valuesC.push(counts[key]);
+      colorsC.push(getRandomColor());
+    }
+
+    
+
+    var dataA = {
       labels: labels,
       datasets: [
         {
@@ -86,20 +153,49 @@ $( document ).ready(function() {
           borderColor: "#e9c46a",
           backgroundColor: "#e9c46a",
           lineTension: 0,
-          //borderDash: [5, 5],
           fill: false,
-          data: values1
+          data: valuesA1
         },
         {
           label: "Visited pages",
           borderColor: "#e76f51",
           backgroundColor: "#e76f51",
           lineTension: 0,
-          //borderDash: [5, 5],
           fill: false,
-          data: values2
+          data: valuesA2
         }
       ]
+    };
+
+    var dataB = {
+      labels: labels,
+      datasets: [
+        {
+          label: "Seconds for star1",
+          borderColor: "#e9c46a",
+          backgroundColor: "#e9c46a",
+          lineTension: 0,
+          fill: false,
+          data: valuesB1
+        },
+        {
+          label: "Seconds for star 1 + star 2",
+          borderColor: "#e76f51",
+          backgroundColor: "#e76f51",
+          lineTension: 0,
+          fill: false,
+          data: valuesB2
+        }
+      ]
+    };
+
+    var dataC = {
+      labels: labelsC,
+      datasets: [{
+        data: valuesC,
+        backgroundColor: colorsC
+
+      }],
     };
 
     var options = {
@@ -113,9 +209,21 @@ $( document ).ready(function() {
       }
     };
 
-    var lineChart = new Chart(speedCanvas, {
+    new Chart(document.getElementById('chartA').getContext('2d'), {
       type: 'bar',
-      data: data,
+      data: dataA,
+      options: options
+    });
+
+    new Chart(document.getElementById('chartB').getContext('2d'), {
+      type: 'line',
+      data: dataB,
+      options: options
+    });
+
+    new Chart(document.getElementById('chartC').getContext('2d'), {
+      type: 'pie',
+      data: dataC,
       options: options
     });
 
